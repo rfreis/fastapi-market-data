@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        REQUIREMENTS: .docker/dev.txt
+    entrypoint: ./.docker/entrypoint.sh
+    container_name: fastapi-tutorial
+    tty: true
+    stdin_open: true
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    env_file: ./.env
+    depends_on:
+      - db
+    networks:
+      - fastapi-network
+
+  db:
+    image: postgres:11.5-alpine
+    container_name: fastapi-db
+    tty: true
+    volumes:
+      - .data/.pgdata:/var/lib/postgresql/data
+    env_file: ./.env
+    ports:
+      - 5435:5432
+    networks:
+      - fastapi-network
+
+networks:
+  fastapi-network:
+    driver: bridge
